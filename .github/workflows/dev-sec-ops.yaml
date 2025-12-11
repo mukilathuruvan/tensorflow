@@ -113,10 +113,10 @@ jobs:
             echo "Bandit report not found"
           fi
 
-      - name: Display Trivy Summary
-        if: always()
-        run: |
-          echo "=== Trivy Summary ==="
-          if [ -f trivy-fs-report.json ]; then
-            python3 - <<EOF
+      # - name: Display Trivy Summary
+      #   if: always()
+      #   run: |
+      #     echo "=== Trivy Summary ==="
+      #     if [ -f trivy-fs-report.json ]; then
+      #       python3 - <<EOF
 
