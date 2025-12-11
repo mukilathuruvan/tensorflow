@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: "3.10"
 
+      # ===========================
+      # Cppcheck (C++ SAST)
+      # ===========================
       - name: Install Cppcheck
         run: |
           sudo apt-get update
@@ -36,6 +39,9 @@ jobs:
             2>&1 || true
         continue-on-error: true
 
+      # ===========================
+      # Bandit (Python SAST)
+      # ===========================
       - name: Install Bandit
         run: pip install bandit
 
@@ -44,6 +50,34 @@ jobs:
           bandit -r tensorflow/ -ll -f json -o bandit-report.json || true
         continue-on-error: true
 
+      # ===========================
+      # Trivy (Dependency + Code + Secrets)
+      # ===========================
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.1
+
+      # ---- Trivy filesystem scan (vulnerabilities + misconfig) ----
+      - name: Run Trivy FS Scan
+        run: |
+          trivy fs . \
+            --exit-code 0 \
+            --severity HIGH,CRITICAL \
+            --format json \
+            --output trivy-fs-report.json
+
+      # ---- Trivy secret scanning ----
+      - name: Run Trivy Secret Scan
+        run: |
+          trivy fs . \
+            --exit-code 0 \
+            --security-checks secret \
+            --format json \
+            --output trivy-secret-report.json
+
+      # ===========================
+      # Upload all reports
+      # ===========================
       - name: Upload SAST Reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -52,6 +86,12 @@ jobs:
           path: |
             cppcheck-report.xml
             bandit-report.json
+            trivy-fs-report.json
+            trivy-secret-report.json
+
+      # ===========================
+      # Console Summaries
+      # ===========================
 
       - name: Display Cppcheck Summary
         if: always()
@@ -72,3 +112,11 @@ jobs:
           else
             echo "Bandit report not found"
           fi
+
+      - name: Display Trivy Summary
+        if: always()
+        run: |
+          echo "=== Trivy Summary ==="
+          if [ -f trivy-fs-report.json ]; then
+            python3 - <<EOF
+
