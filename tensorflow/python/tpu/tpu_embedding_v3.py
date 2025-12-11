@@ -403,9 +403,8 @@ def _stack_tables_with_same_table_dim_and_optimizer(
             # Quantization configs don't have a hash but do support repr.
             repr(table.quantization_config),
         )
-        key_str = hashlib.sha1(
+        key_str = hashlib.sha256(
             repr(key_tuple).encode(),
-            usedforsecurity=False,
         ).hexdigest()
         key = "_xxtpuv3internal_" + key_str
         stacker.AddTable(
