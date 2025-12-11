@@ -544,7 +544,7 @@ class _DefinedFunction(object):
     Returns:
       The unique string for this input
     """
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha256()
 
     def update_num(n):
       hasher.update(compat.as_bytes("%x" % n))

@@ -284,15 +284,34 @@ def _makedirs_exist_ok(datadir):
 
 
 def _resolve_hasher(algorithm, file_hash=None):
-  """Returns hash algorithm as hashlib function."""
+  """Returns hash algorithm as hashlib function.
+
+  Falls back to MD5 only for legacy compatibility when explicitly requested or
+  when a 32-character hash is provided.
+  """
+
+  def _md5_hasher():
+    try:
+      return hashlib.md5(usedforsecurity=False)
+    except TypeError as err:
+      raise ValueError(
+          'MD5 hashing requires hashlib.md5 to accept usedforsecurity=False; '
+          'use algorithm=\"sha256\" instead.') from err
+
   if algorithm == 'sha256':
     return hashlib.sha256()
 
-  if algorithm == 'auto' and file_hash is not None and len(file_hash) == 64:
+  if algorithm == 'md5':
+    return _md5_hasher()
+
+  if algorithm == 'auto':
+    if file_hash is not None and len(file_hash) == 64:
+      return hashlib.sha256()
+    if file_hash is not None and len(file_hash) == 32:
+      return _md5_hasher()
     return hashlib.sha256()
 
-  # This is used only for legacy purposes.
-  return hashlib.md5()
+  return hashlib.sha256()
 
 
 def _hash_file(fpath, algorithm='sha256', chunk_size=65535):

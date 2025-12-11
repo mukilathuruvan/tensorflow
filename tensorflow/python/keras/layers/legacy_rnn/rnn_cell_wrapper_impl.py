@@ -177,7 +177,8 @@ class DropoutWrapperBase(object):
       return None
     salt = "%s_%d" % (salt_prefix, index)
     string = (str(self._seed) + salt).encode("utf-8")
-    return int(hashlib.md5(string).hexdigest()[:8], 16) & 0x7FFFFFFF
+    digest = hashlib.sha256(string).hexdigest()[:8]
+    return int(digest, 16) & 0x7FFFFFFF
 
   @property
   def wrapped_cell(self):
