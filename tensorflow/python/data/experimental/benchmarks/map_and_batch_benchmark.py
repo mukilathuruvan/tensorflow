@@ -100,7 +100,7 @@ class MapAndBatchBenchmark(benchmark_base.DatasetBenchmarkBase):
       name = (
           name_str % (
               "fused" if apply_fusion else "chained",
-              hashlib.sha1((label).encode("utf-8")).hexdigest()[:8],
+              hashlib.sha256((label).encode("utf-8")).hexdigest()[:8],
               map_num_calls_str,
               batch_num_calls_str,
               inter_op,

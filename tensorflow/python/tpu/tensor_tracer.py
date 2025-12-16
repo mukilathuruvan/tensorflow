@@ -119,8 +119,7 @@ def _graph_summary_tag(graph):
 
   if graph is None:
     raise RuntimeError('graph is None')
-  # The chance of collision with md5 is effectively 0.
-  hash_id = hashlib.md5()
+  hash_id = hashlib.sha256()
   hash_id.update(repr(graph).encode('utf-8'))
   # hexdigest() returns a string.
   return hash_id.hexdigest()

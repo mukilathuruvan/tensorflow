@@ -1042,7 +1042,8 @@ def deduplicate_readonly_buffers(tflite_model):
           lambda index: BufferIndex(  # pylint: disable=g-long-lambda
               index,
               model.buffers[index].data.size,
-              hashlib.md5(model.buffers[index].data.data.tobytes()).hexdigest(),
+              hashlib.sha256(
+                  model.buffers[index].data.data.tobytes()).hexdigest(),
           ),
           read_only_buffer_indices,
       )

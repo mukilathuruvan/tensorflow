@@ -178,7 +178,8 @@ class EventListenerTestStreamHandler(
 
   def _write_graph_def(self, graph_def, device_name, wall_time):
     encoded_graph_def = graph_def.SerializeToString()
-    graph_hash = int(hashlib.sha1(encoded_graph_def).hexdigest(), 16)
+    graph_digest = hashlib.sha256(encoded_graph_def).digest()
+    graph_hash = int.from_bytes(graph_digest[:16], byteorder="big")
     event = event_pb2.Event(graph_def=encoded_graph_def, wall_time=wall_time)
     graph_file_path = os.path.join(
         self._dump_dir,
